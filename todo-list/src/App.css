@@ -1,0 +1,32 @@
+.main-body {
+  width: 100vw;
+  height: 100vh;
+  background-image: linear-gradient(135deg, rgb(247, 140, 140), rgb(107, 1, 1));
+}
+.todo-container {
+  min-width: 375px;
+  width: 100%;
+  height: auto;
+  padding: 3rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+.add-delete-btn {
+  width: 75%;
+  display: flex;
+  justify-content: space-between;
+}
+.add-delete-btn button {
+  height: 3rem;
+  width: auto;
+  padding: 0 1rem;
+  color: white;
+  background-image: linear-gradient(90deg, rgb(164, 91, 238), rgb(5, 117, 24));
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  cursor: pointer;
+}
