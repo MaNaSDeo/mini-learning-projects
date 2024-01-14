@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useRef, useEffect } from "react";
 import { TodoContext } from "../todo-context/todo-context";
 import "./TodoBox.css";
 
@@ -8,8 +8,12 @@ function TodoBox({ id, content }) {
 
   const [isEditable, setIsEditable] = useState(false);
   const [value, setValue] = useState(content);
-  // console.log(checkedIds);
   const isChecked = checkedIds.includes(id);
+
+  const inputRef = useRef(null);
+  useEffect(() => {
+    if (isEditable) inputRef.current.focus();
+  }, [isEditable]);
 
   return (
     <div className="todo-box">
@@ -18,14 +22,7 @@ function TodoBox({ id, content }) {
           type="checkbox"
           className="todo-checkbox"
           checked={isChecked}
-          onChange={() =>
-            // setCheckedIds((prevId) =>
-            //   prevId.includes(id)
-            //     ? [...prevId.filter((_id) => _id !== id)]
-            //     : [...prevId, id]
-            // )
-            setCheckedIds(id)
-          }
+          onChange={() => setCheckedIds(id)}
         />
         {isEditable ? (
           <input
@@ -33,6 +30,7 @@ function TodoBox({ id, content }) {
             value={value}
             className="edit-input"
             onChange={(e) => setValue(e.target.value)}
+            ref={inputRef}
           />
         ) : (
           <p className="todo-text">{content}</p>

@@ -1,4 +1,4 @@
-import { createContext, useReducer } from "react";
+import { createContext, useCallback, useMemo, useReducer } from "react";
 
 export const TodoContext = createContext({
   todoData: [],
@@ -17,24 +17,7 @@ export const TodoContext = createContext({
 const todoInitialState = {
   todoData: JSON.parse(localStorage.getItem("todoData"))
     ? JSON.parse(localStorage.getItem("todoData"))
-    : [
-        {
-          id: Date.now().toString(36),
-          todoText: "Create a react project",
-        },
-        {
-          id: 2,
-          todoText: "Create a Type Script project",
-        },
-        {
-          id: 3,
-          todoText: "Create a Java Script project",
-        },
-        {
-          id: 4,
-          todoText: "Create a C++ project",
-        },
-      ],
+    : [],
   checkedIds: JSON.parse(localStorage.getItem("checkedIds"))
     ? JSON.parse(localStorage.getItem("checkedIds"))
     : [],
@@ -63,7 +46,7 @@ function todoReducer(state, action) {
     return updatedState;
   }
   if (action.type === "UPDATE_TODO") {
-    return {
+    const updatedState = {
       ...state,
       todoData: state.todoData.map((todo) =>
         todo.id === action.payload.id
@@ -71,6 +54,8 @@ function todoReducer(state, action) {
           : todo
       ),
     };
+    localStorage.setItem("todoData", JSON.stringify(updatedState.todoData));
+    return updatedState;
   }
   if (action.type === "TOGGLE_INPUT") {
     return { ...state, todoInputVisible: !state.todoInputVisible };
@@ -96,25 +81,59 @@ function todoReducer(state, action) {
     localStorage.setItem("todoData", JSON.stringify(updatedState.todoData));
     return updatedState;
   }
+
+  return state;
 }
 
 export default function TodoContextProvider({ children }) {
   const [todoState, todoDispatch] = useReducer(todoReducer, todoInitialState);
 
-  const todoValue = {
-    todoData: todoState.todoData,
-    checkedIds: todoState.checkedIds,
-    todoInputVisible: todoState.todoInputVisible,
-    setTodoInputVisible: () => todoDispatch({ type: "TOGGLE_INPUT" }),
-    handleDelete: (id) => todoDispatch({ type: "DELETE_TODO", payload: id }),
-    handleUpdate: (id, updateText) =>
+  const setTodoInputVisible = useCallback(() =>
+    todoDispatch({ type: "TOGGLE_INPUT" }, [])
+  );
+  const handleDelete = useCallback((id) =>
+    todoDispatch({ type: "DELETE_TODO", payload: id }, [])
+  );
+  const handleUpdate = useCallback(
+    (id, updateText) =>
       todoDispatch({ type: "UPDATE_TODO", payload: { id, updateText } }),
-    handleAddTodo: (todoText) =>
-      todoDispatch({ type: "ADD_TODO", payload: todoText }),
-    setCheckedIds: (id) =>
-      todoDispatch({ type: "TOGGLE_CHECKED", payload: id }),
-    handleDeleteInBatch: () => todoDispatch({ type: "DELETE_BATCH" }),
-  };
+    []
+  );
+  const handleAddTodo = useCallback(
+    (todoText) => todoDispatch({ type: "ADD_TODO", payload: todoText }),
+    []
+  );
+  const setCheckedIds = useCallback(
+    (id) => todoDispatch({ type: "TOGGLE_CHECKED", payload: id }),
+    []
+  );
+  const handleDeleteInBatch = useCallback(
+    () => todoDispatch({ type: "DELETE_BATCH" }),
+    []
+  );
+
+  const todoValue = useMemo(
+    () => ({
+      todoData: todoState.todoData,
+      checkedIds: todoState.checkedIds,
+      todoInputVisible: todoState.todoInputVisible,
+      setTodoInputVisible,
+      handleDelete,
+      handleUpdate,
+      handleAddTodo,
+      setCheckedIds,
+      handleDeleteInBatch,
+    }),
+    [
+      todoState,
+      setTodoInputVisible,
+      handleDelete,
+      handleUpdate,
+      handleAddTodo,
+      setCheckedIds,
+      handleDeleteInBatch,
+    ]
+  );
 
   return (
     <TodoContext.Provider value={todoValue}>{children}</TodoContext.Provider>

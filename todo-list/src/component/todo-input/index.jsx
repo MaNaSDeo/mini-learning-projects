@@ -1,11 +1,17 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { TodoContext } from "../todo-context/todo-context";
 import "./TodoInput.css";
 
 function TodoInput() {
-  const { handleAddTodo, setTodoInputVisible } = useContext(TodoContext);
+  const { handleAddTodo, todoInputVisible, setTodoInputVisible } =
+    useContext(TodoContext);
 
   const [todoText, setTodoText] = useState("");
+
+  const inputRef = useRef(null);
+  useEffect(() => {
+    if (todoInputVisible) inputRef.current.focus();
+  }, [todoInputVisible]);
 
   return (
     <div className="todo-input-container">
@@ -15,6 +21,7 @@ function TodoInput() {
         placeholder="Add Todo...!"
         value={todoText}
         onChange={(e) => setTodoText(e.target.value)}
+        ref={inputRef}
       />
 
       <button
