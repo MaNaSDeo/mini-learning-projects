@@ -16,9 +16,7 @@ function App() {
     <div className="main-body">
       <div className="todo-container">
         <div className="add-delete-btn">
-          <button onClick={() => setTodoInputVisible(true)}>
-            Add New Todo
-          </button>
+          <button onClick={setTodoInputVisible}>Add New Todo</button>
           <button onClick={handleDeleteInBatch}>Delete</button>
         </div>
         {todoInputVisible && <TodoInput />}

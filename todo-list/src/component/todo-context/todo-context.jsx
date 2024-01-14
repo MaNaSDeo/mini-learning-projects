@@ -1,4 +1,4 @@
-import { createContext, useState, useReducer } from "react";
+import { createContext, useReducer } from "react";
 
 export const TodoContext = createContext({
   todoData: [],
@@ -12,10 +12,9 @@ export const TodoContext = createContext({
   handleDeleteInBatch: () => {},
 });
 
-function todoReducer(state, action) {}
-
-export default function TodoContextProvider({ children }) {
-  const todoArray = [
+// Defining the initial state
+const todoInitialState = {
+  todoData: [
     {
       id: Date.now().toString(36),
       todoText: "Create a react project",
@@ -32,47 +31,75 @@ export default function TodoContextProvider({ children }) {
       id: 4,
       todoText: "Create a C++ project",
     },
-  ];
-  const [todoData, setTodoData] = useState([...todoArray]);
-  const [todoInputVisible, setTodoInputVisible] = useState(false);
-  const [checkedIds, setCheckedIds] = useState([]);
+  ],
+  checkedIds: [],
+  todoInputVisible: false,
+};
 
-  const handleDelete = (id) => {
-    setTodoData((prevTodo) => prevTodo.filter((item) => item.id !== id));
-  };
+// The reducer function
+function todoReducer(state, action) {
+  if (action.type === "ADD_TODO") {
+    return {
+      ...state,
+      todoData: [
+        ...state.todoData,
+        { id: Date.now().toString(36), todoText: action.payload },
+      ],
+    };
+  }
+  if (action.type === "DELETE_TODO") {
+    return {
+      ...state,
+      todoData: state.todoData.filter((todo) => todo.id !== action.payload),
+    };
+  }
+  if (action.type === "UPDATE_TODO") {
+    return {
+      ...state,
+      todoData: state.todoData.map((todo) =>
+        todo.id === action.payload.id
+          ? { ...todo, todoText: action.payload.updateText }
+          : todo
+      ),
+    };
+  }
+  if (action.type === "TOGGLE_INPUT") {
+    return { ...state, todoInputVisible: !state.todoInputVisible };
+  }
+  if (action.type === "TOGGLE_CHECKED") {
+    return {
+      ...state,
+      checkedIds: state.checkedIds.includes(action.payload)
+        ? state.checkedIds.filter((id) => id !== action.payload)
+        : [...state.checkedIds, action.payload],
+    };
+  }
+  if (action.type === "DELETE_BATCH") {
+    return {
+      ...state,
+      todoData: state.todoData.filter(
+        (todo) => !state.checkedIds.includes(todo.id)
+      ),
+      checkedIds: [],
+    };
+  }
+}
 
-  const handleUpdate = (id, value) => {
-    setTodoData((prevTodo) => {
-      return prevTodo.map((todo) =>
-        todo.id === id ? { ...todo, todoText: value } : todo
-      );
-    });
-  };
-
-  const handleAddTodo = (todoText) => {
-    setTodoData((prevTodo) => [
-      ...prevTodo,
-      { id: Date.now().toString(36), todoText: todoText },
-    ]);
-  };
-
-  const handleDeleteInBatch = () => {
-    setTodoData((prevTodo) =>
-      prevTodo.filter((todo) => !checkedIds.includes(todo.id))
-    );
-    setCheckedIds([]);
-  };
+export default function TodoContextProvider({ children }) {
+  const [todoState, todoDispatch] = useReducer(todoReducer, todoInitialState);
 
   const todoValue = {
-    todoData,
-    updateTodo: setTodoData,
-    todoInputVisible,
-    setTodoInputVisible,
-    handleDelete,
-    handleUpdate,
-    handleAddTodo,
-    setCheckedIds,
-    handleDeleteInBatch,
+    todoData: todoState.todoData,
+    todoInputVisible: todoState.todoInputVisible,
+    setTodoInputVisible: () => todoDispatch({ type: "TOGGLE_INPUT" }),
+    handleDelete: (id) => todoDispatch({ type: "DELETE_TODO", payload: id }),
+    handleUpdate: (id, updateText) =>
+      todoDispatch({ type: "UPDATE_TODO", payload: { id, updateText } }),
+    handleAddTodo: (todoText) =>
+      todoDispatch({ type: "ADD_TODO", payload: todoText }),
+    setCheckedIds: (id) =>
+      todoDispatch({ type: "TOGGLE_CHECKED", payload: id }),
+    handleDeleteInBatch: () => todoDispatch({ type: "DELETE_BATCH" }),
   };
 
   return (

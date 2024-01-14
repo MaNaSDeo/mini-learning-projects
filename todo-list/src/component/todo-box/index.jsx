@@ -15,11 +15,12 @@ function TodoBox({ id, content }) {
           type="checkbox"
           className="todo-checkbox"
           onChange={() =>
-            setCheckedIds((prevId) =>
-              prevId.includes(id)
-                ? [...prevId.filter((_id) => _id !== id)]
-                : [...prevId, id]
-            )
+            // setCheckedIds((prevId) =>
+            //   prevId.includes(id)
+            //     ? [...prevId.filter((_id) => _id !== id)]
+            //     : [...prevId, id]
+            // )
+            setCheckedIds(id)
           }
         />
         {isEditable ? (

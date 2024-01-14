@@ -21,7 +21,7 @@ function TodoInput() {
         className="add-todo"
         onClick={() => {
           if (todoText.length >= 5) handleAddTodo(todoText);
-          setTodoInputVisible(false);
+          setTodoInputVisible();
         }}
       >
         Add Todo
