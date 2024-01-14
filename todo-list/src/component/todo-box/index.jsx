@@ -3,10 +3,13 @@ import { TodoContext } from "../todo-context/todo-context";
 import "./TodoBox.css";
 
 function TodoBox({ id, content }) {
-  const { handleDelete, handleUpdate, setCheckedIds } = useContext(TodoContext);
+  const { handleDelete, handleUpdate, setCheckedIds, checkedIds } =
+    useContext(TodoContext);
 
   const [isEditable, setIsEditable] = useState(false);
   const [value, setValue] = useState(content);
+  // console.log(checkedIds);
+  const isChecked = checkedIds.includes(id);
 
   return (
     <div className="todo-box">
@@ -14,6 +17,7 @@ function TodoBox({ id, content }) {
         <input
           type="checkbox"
           className="todo-checkbox"
+          checked={isChecked}
           onChange={() =>
             // setCheckedIds((prevId) =>
             //   prevId.includes(id)

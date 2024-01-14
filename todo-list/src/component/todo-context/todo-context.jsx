@@ -2,6 +2,7 @@ import { createContext, useReducer } from "react";
 
 export const TodoContext = createContext({
   todoData: [],
+  checkedIds: [],
   todoInputVisible: false,
   updateTodo: () => {},
   setTodoInputVisible: () => {},
@@ -14,44 +15,52 @@ export const TodoContext = createContext({
 
 // Defining the initial state
 const todoInitialState = {
-  todoData: [
-    {
-      id: Date.now().toString(36),
-      todoText: "Create a react project",
-    },
-    {
-      id: 2,
-      todoText: "Create a Type Script project",
-    },
-    {
-      id: 3,
-      todoText: "Create a Java Script project",
-    },
-    {
-      id: 4,
-      todoText: "Create a C++ project",
-    },
-  ],
-  checkedIds: [],
+  todoData: JSON.parse(localStorage.getItem("todoData"))
+    ? JSON.parse(localStorage.getItem("todoData"))
+    : [
+        {
+          id: Date.now().toString(36),
+          todoText: "Create a react project",
+        },
+        {
+          id: 2,
+          todoText: "Create a Type Script project",
+        },
+        {
+          id: 3,
+          todoText: "Create a Java Script project",
+        },
+        {
+          id: 4,
+          todoText: "Create a C++ project",
+        },
+      ],
+  checkedIds: JSON.parse(localStorage.getItem("checkedIds"))
+    ? JSON.parse(localStorage.getItem("checkedIds"))
+    : [],
   todoInputVisible: false,
 };
 
 // The reducer function
 function todoReducer(state, action) {
   if (action.type === "ADD_TODO") {
-    return {
+    const updatedState = {
       ...state,
       todoData: [
         ...state.todoData,
         { id: Date.now().toString(36), todoText: action.payload },
       ],
     };
+    localStorage.setItem("todoData", JSON.stringify(updatedState.todoData));
+    return updatedState;
   }
   if (action.type === "DELETE_TODO") {
-    return {
+    const updatedState = {
       ...state,
       todoData: state.todoData.filter((todo) => todo.id !== action.payload),
     };
+    localStorage.setItem("todoData", JSON.stringify(updatedState.todoData));
+    return updatedState;
   }
   if (action.type === "UPDATE_TODO") {
     return {
@@ -67,21 +76,25 @@ function todoReducer(state, action) {
     return { ...state, todoInputVisible: !state.todoInputVisible };
   }
   if (action.type === "TOGGLE_CHECKED") {
-    return {
+    const updatedState = {
       ...state,
       checkedIds: state.checkedIds.includes(action.payload)
         ? state.checkedIds.filter((id) => id !== action.payload)
         : [...state.checkedIds, action.payload],
     };
+    localStorage.setItem("checkedIds", JSON.stringify(updatedState.checkedIds));
+    return updatedState;
   }
   if (action.type === "DELETE_BATCH") {
-    return {
+    const updatedState = {
       ...state,
       todoData: state.todoData.filter(
         (todo) => !state.checkedIds.includes(todo.id)
       ),
       checkedIds: [],
     };
+    localStorage.setItem("todoData", JSON.stringify(updatedState.todoData));
+    return updatedState;
   }
 }
 
@@ -90,6 +103,7 @@ export default function TodoContextProvider({ children }) {
 
   const todoValue = {
     todoData: todoState.todoData,
+    checkedIds: todoState.checkedIds,
     todoInputVisible: todoState.todoInputVisible,
     setTodoInputVisible: () => todoDispatch({ type: "TOGGLE_INPUT" }),
     handleDelete: (id) => todoDispatch({ type: "DELETE_TODO", payload: id }),
