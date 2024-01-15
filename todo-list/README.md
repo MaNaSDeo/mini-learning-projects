@@ -2,6 +2,10 @@
 
 This is a simple Todo application built with React.
 
+## Check Live
+
+Deployed Link: https://65a56bfda79a9212a1a8485e--todo-complex.netlify.app/
+
 ## Components
 
 The application consists of the following components:
